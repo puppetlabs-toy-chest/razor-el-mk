@@ -5,17 +5,6 @@ describe MK::Node do
   subject(:node) { MK::Node.instance }
 
   context "hw_id" do
-    def stub_interfaces(interfaces)
-      Facter::Util::IP.stub(:get_interfaces).and_return(interfaces.keys)
-      Facter::Util::IP.stub(:get_interface_value) do |name, value|
-        value == 'macaddress' or
-          raise "only 'macaddress' values are supported in this stub"
-        interfaces.has_key?(name) or
-          raise "facter really just explodes, but we have a nice error message"
-        interfaces[name]
-      end
-    end
-
     # @todo danielp 2013-07-25: the semantics of this situation are unclear to
     # me, but I think that "fail and assume that either the MK reboots, or a
     # network interface eventually shows up when we are restarted" are
@@ -81,6 +70,44 @@ describe MK::Node do
         'eth0'  => '00:0c:29:82:5e:22')
 
       node.hw_id.should == '000c29825e22'
+    end
+  end
+
+  context "facts" do
+    let :facts do Facter.to_hash end
+
+    # Ensure consistent hardware ID is available.
+    before :each do stub_interfaces('eth0' => '00:0c:29:82:5e:22') end
+
+    it "should return facts as a hash" do
+      node.facts.should be_an_instance_of Hash
+    end
+
+    it "should have only string keys" do
+      node.facts.keys.each {|key| key.should be_an_instance_of String }
+    end
+
+    it "should return all the current nodes facts" do
+      node.facts.should include facts
+    end
+  end
+
+  context "user_agent" do
+    subject(:ua) { node.user_agent }
+
+    # Based on the ABNF from the RFC.
+    ValidToken           = %r{[^()<>@,;:\\"\/\[\]?={} \x0-\x1f\x7f]+}o
+    ValidProduct         = %r{#{ValidToken}/#{ValidToken}}o
+    ValidUserAgentHeader = %r{\A#{ValidProduct}(?: #{ValidProduct})*\Z}o
+
+    it "should be a valid user agent header" do
+      ua.should =~ ValidUserAgentHeader
+    end
+
+    %w[razor facter ruby kernel].each do |field|
+      it "should include a valid #{field} version token" do
+        ua.should =~ /\b#{field}\/#{ValidToken}\b/i
+      end
     end
   end
 end
