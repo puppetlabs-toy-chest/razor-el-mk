@@ -22,7 +22,12 @@ module MK
   # Convenience accessor for shared configuration data.
   def_delegator 'MK::Config', 'instance', 'config'
   module_function 'config'
+
+  # Convenience accessor for our "server" RPC abstraction.
+  def_delegator 'MK::Server', 'instance', 'server'
+  module_function 'server'
 end
 
 require_relative 'mk/node'
 require_relative 'mk/config'
+require_relative 'mk/server'
