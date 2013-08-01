@@ -1,0 +1,78 @@
+require 'spec_helper'
+require 'mk/script'
+
+require 'webrick'
+require 'thread'
+
+describe "register" do
+  def port; 27006; end
+
+  # We need to use a global variable for the queue, so that both threads see
+  # the same value.  (rspec will memoize across the threads differently, and
+  # member variables are not as reliable as you might hope: the before hook
+  # and the query happen in different objects, so you can be certain that they
+  # will NOT see the same members.)
+  def last_registration
+    if @last_registration.nil? or $queue.size > 0
+      @last_registration = $queue.pop
+    end
+    @last_registration
+  end
+
+  before :all do
+    $queue = Queue.new          # meh
+
+    @server = WEBrick::HTTPServer.new(
+      :Port      => port,
+      :Logger    => WEBrick::Log.new('/dev/null'),
+      :AccessLog => WEBrick::Log.new('/dev/null'))
+
+    @server.mount_proc '/svc/checkin' do |req, res|
+      # We have to force reading the body now, or it will be discarded before
+      # the request is fetched off the queue; the Ruby library will cache the
+      # result against future calls to `body`.
+      req.body
+      $queue.push req
+
+      res.status = 200
+      res.body   = {"action" => "none"}.to_json
+      res['Content-Type'] = 'application/json'
+    end
+
+    Thread.new { @server.start }
+
+    ENV['razor.register'] = "http://localhost:#{port}/svc/checkin"
+  end
+
+  after :all do
+    @server and @server.shutdown
+    ENV.delete('razor.register')
+  end
+
+  it "should fail if arguments are given" do
+    expect {
+      MK::Script.register(["1"])
+    }.to raise_error(/does not take any arguments/)
+  end
+
+  it "should register with the server" do
+    stub_interfaces('eth0' => '00:00:00:00:00:00')
+    MK::Script.register([])
+
+    last_registration['Content-Type'].should == 'application/json'
+
+    data = JSON.parse(last_registration.body)
+
+    # Sadly, RSpec still has limited support for fuzzy matching on hash values.
+    data.keys.should include('hw_id', 'facts')
+    data['hw_id'].should == '000000000000'
+    data['facts'].should be_an_instance_of Hash
+
+    # Make sure we passed a sampling of facts through correctly; should be
+    # testing `nil == nil` if the fact isn't defined on this platform, which
+    # is a pass, and an acceptable default position to take.
+    %w[architecture hostname path rubyversion sshdsakey virtual].each do |fact|
+      data['facts'][fact].should == Facter.send(fact)
+    end
+  end
+end

@@ -1,0 +1,35 @@
+#!/usr/bin/env ruby
+
+# @todo danielp 2013-07-29: I am tempted to assume mk is on RUBYLIB, but that
+# doesn't work running from source; OTOH, this doesn't work if we *are*
+# installed such that mk is on RUBYLIB, but we are in, eg, `/usr/bin`...
+#
+# So many ways this can go wrong. This seems the least-worst compromise to me.
+begin
+  require 'mk/script'
+rescue LoadError
+  require_relative '../lib/mk/script'
+end
+
+def usage(outcome, message = nil)
+  message and puts message, ""
+
+  puts <<EOT
+usage: mk <command> [...]
+
+Invoke an MK script command, and exit.  Available commands:
+
+ * register
+
+EOT
+  exit outcome
+end
+
+# Figure out, and dispatch, to our command.
+command = ARGV.shift.to_s or usage(false, 'No command was supplied')
+MK::Script.respond_to?(command) or usage(false, "Unknown command #{command.inspect}")
+begin
+  exit MK::Script.send(command, ARGV)
+rescue Exception => e
+  usage(false, "error running #{command}: #{e}")
+end
