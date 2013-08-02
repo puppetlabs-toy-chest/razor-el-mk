@@ -32,4 +32,18 @@ describe "bin/mk script" do
     status.should_not be_success
     output.should =~ /unknown command/i
   end
+
+  it "should exit zero if the command executed successfully" do
+    env = {'razor.commands' => dir_of('true')}
+    output, status = capture2e(env, mk, 'execute', 'true')
+    status.should be_exited
+    status.should be_success
+  end
+
+  it "should exit non-zero if the command executed but returned non-zero" do
+    env = {'razor.commands' => dir_of('false')}
+    output, status = capture2e(env, mk, 'execute', 'false')
+    status.should be_exited
+    status.should_not be_success
+  end
 end

@@ -28,8 +28,14 @@ end
 # Figure out, and dispatch, to our command.
 command = ARGV.shift or usage(false, 'No command was supplied')
 MK::Script.respond_to?(command) or usage(false, "Unknown command #{command.inspect}")
+
+result = false
+
 begin
-  exit MK::Script.send(command, ARGV)
+  result = MK::Script.send(command, *ARGV)
 rescue Exception => e
+  # This would otherwise catch SystemExit, which we kind of don't want to do.
   usage(false, "error running #{command}: #{e}")
 end
+
+exit result
