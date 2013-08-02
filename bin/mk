@@ -21,6 +21,14 @@ Invoke an MK script command, and exit.  Available commands:
 
  * register
 
+Register this node with the Razor server.  This submits facts and, if the
+server has an action to be carried out, executes it locally.
+
+ * execute <command> [args...]
+
+Execute a Razor command.  This is used to run commands returned by the Razor
+server, but could also be used to locally test custom commands.
+
 EOT
   exit outcome
 end
