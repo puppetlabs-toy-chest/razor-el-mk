@@ -26,7 +26,7 @@ EOT
 end
 
 # Figure out, and dispatch, to our command.
-command = ARGV.shift.to_s or usage(false, 'No command was supplied')
+command = ARGV.shift or usage(false, 'No command was supplied')
 MK::Script.respond_to?(command) or usage(false, "Unknown command #{command.inspect}")
 begin
   exit MK::Script.send(command, ARGV)
