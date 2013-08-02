@@ -21,15 +21,29 @@ Invoke an MK script command, and exit.  Available commands:
 
  * register
 
+Register this node with the Razor server.  This submits facts and, if the
+server has an action to be carried out, executes it locally.
+
+ * execute <command> [args...]
+
+Execute a Razor command.  This is used to run commands returned by the Razor
+server, but could also be used to locally test custom commands.
+
 EOT
   exit outcome
 end
 
 # Figure out, and dispatch, to our command.
-command = ARGV.shift.to_s or usage(false, 'No command was supplied')
+command = ARGV.shift or usage(false, 'No command was supplied')
 MK::Script.respond_to?(command) or usage(false, "Unknown command #{command.inspect}")
+
+result = false
+
 begin
-  exit MK::Script.send(command, ARGV)
+  result = MK::Script.send(command, *ARGV)
 rescue Exception => e
+  # This would otherwise catch SystemExit, which we kind of don't want to do.
   usage(false, "error running #{command}: #{e}")
 end
+
+exit result

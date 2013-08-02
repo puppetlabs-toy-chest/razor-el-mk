@@ -3,6 +3,8 @@ require 'mk/script'
 
 require 'webrick'
 require 'thread'
+require 'tmpdir'
+require 'json'
 
 describe "register" do
   def port; 27006; end
@@ -51,13 +53,13 @@ describe "register" do
 
   it "should fail if arguments are given" do
     expect {
-      MK::Script.register(["1"])
-    }.to raise_error(/does not take any arguments/)
+      MK::Script.register("1")
+    }.to raise_error ArgumentError, /wrong number of arguments/
   end
 
   it "should register with the server" do
     stub_interfaces('eth0' => '00:00:00:00:00:00')
-    MK::Script.register([])
+    MK::Script.register
 
     last_registration['Content-Type'].should == 'application/json'
 
@@ -74,5 +76,69 @@ describe "register" do
     %w[architecture hostname path rubyversion sshdsakey virtual].each do |fact|
       data['facts'][fact].should == Facter.send(fact)
     end
+  end
+end
+
+
+describe "execute" do
+  def dir_of(command)
+    dir = ENV['PATH'].
+      split(':').
+      map {|x| Pathname(x) + command }.
+      select {|x| x.executable? }.
+      first.
+      dirname.
+      to_s
+
+    dir or raise "command #{command} not found on PATH"
+  end
+
+  it "should fail if `commands` is not in the configuration" do
+    MK.config.stub(:[]).and_return(nil)
+    expect {
+      MK::Script.execute('true')
+    }.to raise_error RuntimeError, /not set in the configuration/
+  end
+
+  it "should fail if the command does not exist on the command path" do
+    Dir.mktmpdir do |root|
+      ENV['razor.commands'] = root
+      expect {
+        MK::Script.execute('true')
+      }.to raise_error RuntimeError, /unknown command/
+    end
+  end
+
+  it "should fail if the command is not an executable" do
+    Dir.mktmpdir do |root|
+      ENV['razor.commands'] = root
+      file = (Pathname(root) + 'true')
+      file.open('w') {|f| f.puts ''} # create...
+      file.chmod(0644)               # ...and non-executable
+
+      expect {
+        MK::Script.execute('true')
+      }.to raise_error RuntimeError, /not executable/
+
+      ENV.delete('razor.commands')
+    end
+  end
+
+  it "should raise if the command returns non-zero" do
+    ENV['razor.commands'] = dir_of('false')
+
+    expect {
+      MK::Script.execute('false')
+    }.to raise_error RuntimeError, /failed invoking/
+
+    ENV.delete('razor.commands')
+  end
+
+  it "should return true if the commands returns zero" do
+    ENV['razor.commands'] = dir_of('true')
+
+    MK::Script.execute('true').should be_true
+
+    ENV.delete('razor.commands')
   end
 end

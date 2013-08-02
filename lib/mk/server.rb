@@ -39,12 +39,9 @@ class MK::Server
         # deliberate action in response to this.
         result = JSON.parse(response.body)
 
-        # @todo danielp 2013-07-30: ...aaaand, we should actually *do*
-        # something with this.  For now, this is sufficient.
-        puts "ignoring action from server: #{response.body}"
-
-        # ...and we are done.  Return a true value to our caller.
-        true
+        # ...and we are done.  Return the results of the submission, decoded,
+        # to the caller.
+        result
 
       else
         # This will raise an exception capturing the state of the response.
