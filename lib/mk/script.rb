@@ -2,6 +2,7 @@ require_relative '../mk'
 
 require 'pathname'
 require 'open3'
+require 'json'
 
 # A namespace to hold our command line script support code.
 module MK::Script
