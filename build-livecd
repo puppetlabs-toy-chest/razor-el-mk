@@ -41,8 +41,12 @@ Restart=always
 [Install]
 WantedBy=multi-user.target
 EOUNIT
+
 mkdir /var/lib/mk
 systemctl enable mk.service
+
+mkdir /usr/lib/razor
+ln -sf /sbin/reboot /usr/lib/razor/reboot
 %end
 EOF
 
