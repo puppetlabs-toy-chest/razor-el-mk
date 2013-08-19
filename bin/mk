@@ -33,6 +33,16 @@ EOT
   exit outcome
 end
 
+# @todo lutter 2013-08-18: What we do for the daemon is mostly fine for
+# systemd, but for SysV we'd have to do quite a bit more to make running
+# the daemon robust.
+if ARGV[0] == "--daemon"
+  daemon = true
+  ARGV.shift
+else
+  daemon = false
+end
+
 # Figure out, and dispatch, to our command.
 command = ARGV.shift or usage(false, 'No command was supplied')
 MK::Script.respond_to?(command) or usage(false, "Unknown command #{command.inspect}")
@@ -40,7 +50,12 @@ MK::Script.respond_to?(command) or usage(false, "Unknown command #{command.inspe
 result = false
 
 begin
-  result = MK::Script.send(command, *ARGV)
+  loop do
+    result = MK::Script.send(command, *ARGV)
+    break unless daemon
+    sleep 15
+    puts "\nRunning at #{Time.now}"
+  end
 rescue Exception => e
   # This would otherwise catch SystemExit, which we kind of don't want to do.
   usage(false, "error running #{command}: #{e}")
