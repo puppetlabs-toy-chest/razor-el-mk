@@ -14,43 +14,46 @@ class MK::Server
     raise "HTTPS is not yet supported in #{url}" if url.scheme =~ /\Ahttps\Z/i
     raise "bad URL scheme for #{url}" unless url.scheme =~ /\Ahttp\Z/i
 
-    Net::HTTP.start(url.host, url.port) do |http|
-      # Build the request object...
-      post      = Net::HTTP::Post.new(url.path, headers)
-      post.body = body.is_a?(String) ? body : body.to_json
+    begin
+      Net::HTTP.start(url.host, url.port) do |http|
+        # Build the request object...
+        post      = Net::HTTP::Post.new(url.path, headers)
+        post.body = body.is_a?(String) ? body : body.to_json
 
-      # ...submit, and consider the result we got.
-      response = http.request(post)
+        # ...submit, and consider the result we got.
+        response = http.request(post)
 
-      case response
-      when Net::HTTPSuccess, Net::HTTPRedirection
-        # @todo danielp 2013-07-30: I am going to assume that the HTTP
-        # redirect response is a success, and they want to send us politely to
-        # the "here are your results" page or something.  Is that right?
-        # Should I be stricter about what we accept?
-        #
-        # @todo danielp 2013-07-30: right now we get a synchronous command
-        # returned from the server.  We should extract that, and submit it
-        # internally for processing.
-        response.content_type.downcase == 'application/json' or
-          raise "unknown response content type #{response.content_type.inspect}"
+        case response
+        when Net::HTTPSuccess, Net::HTTPRedirection
+          # @todo danielp 2013-07-30: I am going to assume that the HTTP
+          # redirect response is a success, and they want to send us politely to
+          # the "here are your results" page or something.  Is that right?
+          # Should I be stricter about what we accept?
+          #
+          # @todo danielp 2013-07-30: right now we get a synchronous command
+          # returned from the server.  We should extract that, and submit it
+          # internally for processing.
+          response.content_type.downcase == 'application/json' or
+            raise "unknown response content type #{response.content_type.inspect}"
 
-        # This is the "untrusted" parser, as it should be: we might take some
-        # deliberate action in response to this.
-        result = JSON.parse(response.body)
+          # This is the "untrusted" parser, as it should be: we might take some
+          # deliberate action in response to this.
+          result = JSON.parse(response.body)
 
-        # @todo danielp 2013-07-30: ...aaaand, we should actually *do*
-        # something with this.  For now, this is sufficient.
-        puts "ignoring action from server: #{response.body}"
+          # ...and we are done.  Return the results of the submission, decoded,
+          # to the caller.
+          result
 
-        # ...and we are done.  Return a true value to our caller.
-        true
-
-      else
-        # This will raise an exception capturing the state of the response.
-        # Yes, that name is terrible; I blame the Ruby folks for that one.
-        response.value
+        else
+          # This will raise an exception capturing the state of the response.
+          # Yes, that name is terrible; I blame the Ruby folks for that one.
+          response.value
+        end
       end
+    rescue SocketError => e
+      # This is an infuriatingly uninformative error message if we do not
+      # annotate it with the host and port we tried to talk to
+      raise RuntimeError, "Can not connect to #{url.host}:#{url.port}\n#{e.to_s}"
     end
   end
 end

@@ -1,0 +1,50 @@
+#! /bin/bash
+
+# livecd-creator doesn't give us a nice way to reference the directory in
+# which the kickstart lives, and we can therefore not locate files from
+# within the kickstart. It does try to look for %include files relative to
+# the main kickstart. We exploit that here to generate a snippet that
+# installs the MK and sets it up
+
+TOP_DIR=$(realpath $(dirname $0))
+VERSION=$(grep version $TOP_DIR/razor-el-mk.gemspec | sed -r -e 's/^.*"([0-9.]+)".*$/\1/')
+
+GEM_FILE=$TOP_DIR/pkg/razor-mk-agent-${VERSION}.gem
+if [ ! -f "$GEM_FILE" ]; then
+    echo "There is no gem $GEM_FILE"
+    echo "Run 'rake build' first"
+    exit 1
+fi
+
+cat > mk-install.ks <<EOF
+%post --nochroot
+cp $TOP_DIR/pkg/razor-mk-agent-${VERSION}.gem \$INSTALL_ROOT/var/tmp
+%end
+
+%post
+gem install --no-ri --no-rdoc /var/tmp/razor-mk-agent-${VERSION}.gem
+
+cat > /etc/systemd/system/mk.service <<EOUNIT
+[Unit]
+Description=Microkernel agent
+
+[Service]
+Type=simple
+WorkingDirectory=/var/lib/mk
+StandardInput=null
+StandardOutput=syslog
+StandardError=inherit
+SyslogIdentifier=microkernel
+ExecStart=/usr/local/bin/mk --daemon register
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+EOUNIT
+mkdir /var/lib/mk
+systemctl enable mk.service
+%end
+EOF
+
+echo "Now run as root"
+echo "livecd-creator --config $TOP_DIR/microkernel.ks"

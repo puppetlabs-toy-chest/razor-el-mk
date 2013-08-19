@@ -1,5 +1,7 @@
 require 'spec_helper'
 require 'mk/server'
+require 'webrick'
+require 'json'
 
 describe MK::Server do
   subject(:server) { MK::Server.instance }
@@ -27,6 +29,8 @@ describe MK::Server do
       }
     end
 
+    GoodResponse = {'action' => 'none'}
+
     before :all do
       @server = WEBrick::HTTPServer.new(
         :Port      => port,
@@ -36,6 +40,24 @@ describe MK::Server do
       @server.mount_proc '/500' do |req, res|
         res.status = 500
         res.body   = '500 you lose'
+      end
+
+      @server.mount_proc '/good-body' do |req, res|
+        res.status       = 200
+        res.body         = GoodResponse.to_json
+        res.content_type = 'application/json'
+      end
+
+      @server.mount_proc '/not-json-c-t' do |req, res|
+        res.status       = 200
+        res.body         = {'action' => 'none'}.to_json
+        res.content_type = 'application/definitely-not-json'
+      end
+
+      @server.mount_proc '/not-valid-json' do |req, res|
+        res.status       = 200
+        res.body         = '{"action": "none"'
+        res.content_type = 'application/json'
       end
 
       Thread.new { @server.start }
@@ -84,6 +106,25 @@ describe MK::Server do
       expect {
         server.send_register(body, headers)
       }.to raise_error Net::HTTPFatalError, /500/
+    end
+
+    it "should raise if the response is not JSON by content-type" do
+      ENV['razor.register'] = "http://localhost:#{port}/not-json-c-t"
+      expect {
+        server.send_register(body, headers)
+      }.to raise_error RuntimeError, /unknown response content type/
+    end
+
+    it "should raise if the response does not decode as JSON" do
+      ENV['razor.register'] = "http://localhost:#{port}/not-valid-json"
+      expect {
+        server.send_register(body, headers)
+      }.to raise_error JSON::ParserError
+    end
+
+    it "should return the body, decoded as JSON, on success" do
+      ENV['razor.register'] = "http://localhost:#{port}/good-body"
+      server.send_register(body, headers).should == GoodResponse
     end
   end
 end

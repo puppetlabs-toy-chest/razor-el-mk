@@ -1,3 +1,5 @@
 /.ruby-gemset
 /.ruby-version
+/pkg
 /coverage
+/mk-install.ks

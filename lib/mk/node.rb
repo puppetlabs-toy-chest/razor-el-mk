@@ -24,7 +24,12 @@ class MK::Node
       # Ethernet interfaces, which seems (a) limited, and (b) likely to fail
       # in Fedora 20 and beyond, when they rename the interfaces based
       # on topology.  IMO, we should have a more sensible policy than this.
-      iface =~ /^eth\d+$/
+      #
+      # @todo lutter 2013-08-18: add 'emNNN' to the list of interfaces as a
+      # stopgap since that's what Fedora 18 uses. Most likely, we will need
+      # to make this regexp configurable to allow people to adapt it to
+      # various kernel's naming conventions
+      iface =~ /^(eth|em)\d+$/
     end
 
     # Since we might have eliminated the only interfaces present on this

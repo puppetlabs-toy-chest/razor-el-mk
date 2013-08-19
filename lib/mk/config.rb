@@ -33,7 +33,8 @@ class MK::Config
 
   # Default configuration values
   DefaultConfiguration = {
-    'register' => 'http://razor:8140/svc/checkin'
+    'register' => 'http://razor:8140/svc/checkin',
+    'commands' => '/usr/lib/razor'
   }.freeze
 
   # Configuration File path.
