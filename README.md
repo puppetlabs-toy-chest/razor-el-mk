@@ -5,6 +5,8 @@ on RHEL/CentOS/Fedora.
 
 To build an image, run the following on a Fedora 18 machine:
 
+    > rake build
+    > ./build-livecd
     > sudo livecd-creator --verbose --config microkernel.ks
 
 This will produce an ~ 150MB ISO file. You can extract kernel and initrd

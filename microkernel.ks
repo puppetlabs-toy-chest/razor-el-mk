@@ -1,6 +1,6 @@
 # Kickstart file to build a small Fedora image
 # This is based on the work at http://www.thincrust.net
-lang C
+lang en_US.UTF-8
 keyboard us
 timezone US/Eastern
 auth --useshadow --enablemd5
@@ -61,11 +61,12 @@ openssh-server
 dhclient
 iputils
 
-# The reason we are doing all this
-facter
-
 # Enable stripping
 binutils
+
+# We need a ruby env and all of facter's dependencies fulfilled
+rubygems
+facter
 
 #
 # Packages to Remove
@@ -102,9 +103,10 @@ generic-logos
 -fedora-release-notes
 %end
 
-#
-# Add custom post scripts after the base post.
-#
+# Install the microkernel agent
+%include mk-install.ks
+
+# Try to minimize the image a bit
 %post
 rm -rf /var/cache/yum/*
 mkdir /tmp/loc
