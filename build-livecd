@@ -51,4 +51,4 @@ ln -sf /sbin/reboot /usr/lib/razor/reboot
 EOF
 
 echo "Now run as root"
-echo "livecd-creator --config $TOP_DIR/microkernel.ks"
+echo "livecd-creator --config $TOP_DIR/microkernel.ks --cache /var/cache/microkernel -f microkernel"
