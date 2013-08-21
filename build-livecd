@@ -27,6 +27,7 @@ gem install -l --no-ri --no-rdoc /var/tmp/razor-mk-agent-${VERSION}.gem
 cat > /etc/systemd/system/mk.service <<EOUNIT
 [Unit]
 Description=Microkernel agent
+After=network.target syslog.target nss-lookup.target
 
 [Service]
 Type=simple
