@@ -42,6 +42,12 @@ describe MK::Config do
       end
     end
 
+    it "should not use command line value with wrong name" do
+      with_command_line('razor.register=lose') do
+        config['other'].should be_nil
+      end
+    end
+
     it "should find the option with other values before the option" do
       with_command_line('acpi=force quiet razor.register=win') do
         config['register'].should == 'win'
@@ -88,6 +94,12 @@ describe MK::Config do
     it "should use the default value if the option is missing" do
       with_config({}) do
         config['register'].should == MK::Config::DefaultConfiguration['register']
+      end
+    end
+
+    it "should not use the configuration file value with wrong name" do
+      with_config({'register' => 'lose'}) do
+        config['other'].should be_nil
       end
     end
 

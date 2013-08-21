@@ -69,9 +69,8 @@ class MK::Config
   def get_from_kernel_command_line(key)
     return nil unless File.readable? KernelCommandLineFile
 
-    key   = "razor.#{key}"
     data  = Hash[File.read(KernelCommandLineFile).scan(/\brazor\.(\w+)=([^\s]+)/i)]
-    found = data.keys.find {|n| key.casecmp(n) }
+    found = data.keys.find {|n| key.casecmp(n) == 0 }
     found and data[found]
   end
 
@@ -97,7 +96,7 @@ class MK::Config
     data = JSON.parse(File.read(ConfigurationFile), :create_additions => false) rescue {}
     return nil unless data.is_a? Hash
 
-    found = data.keys.find {|n| key.casecmp(n) }
+    found = data.keys.find {|n| key.casecmp(n) == 0 }
     found and data[found]
   end
 
