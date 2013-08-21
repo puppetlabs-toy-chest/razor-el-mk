@@ -18,7 +18,10 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^spec/})
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "facter"
+  # @todo lutter 2013-08-20: we really do depend on facter, but because of
+  # how we build the microkernel, we can't fulfill it from rubygems, and
+  # use the RPM packaged facter instead which is not a rubygem
+  # spec.add_dependency "facter"
 
   spec.add_development_dependency "bundler", "~> 1.3"
   spec.add_development_dependency "rake"

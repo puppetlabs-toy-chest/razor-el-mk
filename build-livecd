@@ -22,7 +22,7 @@ cp $TOP_DIR/pkg/razor-mk-agent-${VERSION}.gem \$INSTALL_ROOT/var/tmp
 %end
 
 %post
-gem install --no-ri --no-rdoc /var/tmp/razor-mk-agent-${VERSION}.gem
+gem install -l --no-ri --no-rdoc /var/tmp/razor-mk-agent-${VERSION}.gem
 
 cat > /etc/systemd/system/mk.service <<EOUNIT
 [Unit]
