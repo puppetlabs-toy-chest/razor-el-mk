@@ -7,6 +7,8 @@ require 'net/http'
 class MK::Server
   include Singleton
 
+  class ConnectionFailedError < RuntimeError; end
+
   # Submit a registration request to the server.  This will raise an exception
   # if the request fails.
   def send_register(body, headers)
@@ -53,7 +55,8 @@ class MK::Server
     rescue SocketError => e
       # This is an infuriatingly uninformative error message if we do not
       # annotate it with the host and port we tried to talk to
-      raise RuntimeError, "Can not connect to #{url.host}:#{url.port}\n#{e.to_s}"
+      raise ConnectionFailedError,
+            "Can not connect to #{url.host}:#{url.port}\n#{e.to_s}"
     end
   end
 end

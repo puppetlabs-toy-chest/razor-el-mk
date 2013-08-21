@@ -51,7 +51,17 @@ result = false
 
 begin
   loop do
-    result = MK::Script.send(command, *ARGV)
+    begin
+      result = MK::Script.send(command, *ARGV)
+    rescue MK::Server::ConnectionFailedError => e
+      if daemon
+        # In daemon mode, we simply want to continue, since the best
+        # we can hope for is that the failure is transient
+        puts e.to_s
+      else
+        raise e
+      end
+    end
     break unless daemon
     sleep 15
     puts "\nRunning at #{Time.now}"
