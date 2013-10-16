@@ -1,0 +1,13 @@
+[Unit]
+Description=Razor Microkernel Agent trigger
+After=network.target syslog.target nss-lookup.target
+
+[Timer]
+# Thirty seconds idle time between boot and running the agent the first time
+# seems like a reasonable delay to me.
+OnBootSec=30
+# ...and every fifteen seconds after we *finished* the last command.
+OnUnitInactiveSec=15
+
+[Install]
+WantedBy=multi-user.target

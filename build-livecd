@@ -25,28 +25,19 @@ cp $TOP_DIR/pkg/razor-mk-agent-${VERSION}.gem \$INSTALL_ROOT/var/tmp
 gem install -l --no-ri --no-rdoc /var/tmp/razor-mk-agent-${VERSION}.gem
 
 cat > /etc/systemd/system/mk.service <<EOUNIT
-[Unit]
-Description=Microkernel agent
-After=network.target syslog.target nss-lookup.target
+$(< etc/mk.service)
+EOUNIT
 
-[Service]
-Type=simple
-WorkingDirectory=/var/lib/mk
-StandardInput=null
-StandardOutput=syslog
-StandardError=inherit
-SyslogIdentifier=microkernel
-ExecStart=/usr/local/bin/mk --daemon register
-Restart=always
-
-[Install]
-WantedBy=multi-user.target
+cat > /etc/systemd/system/mk.timer <<EOUNIT
+$(< etc/mk.timer)
 EOUNIT
 
 mkdir /var/lib/mk
-systemctl enable mk.service
+systemctl enable mk.timer
 
 mkdir /usr/lib/razor
+
+# enable the `reboot` command from the Razor server
 ln -sf /sbin/reboot /usr/lib/razor/reboot
 %end
 EOF
