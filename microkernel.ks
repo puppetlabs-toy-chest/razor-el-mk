@@ -6,7 +6,8 @@ timezone US/Eastern
 auth --useshadow --enablemd5
 selinux --permissive
 bootloader --timeout=1 --append="acpi=force"
-network --bootproto=dhcp --device=eth0 --onboot=on
+# we don't want network auto-configured -- udev does that on boot!
+# network --bootproto=dhcp --device=eth0 --onboot=on
 services --enabled=network
 
 # Uncomment the next line
@@ -118,3 +119,6 @@ yum -y erase binutils
 #rpm -e gnupg2 gpgme pygpgme yum rpm-build-libs rpm-python
 #rm -rf /var/lib/rpm
 %end
+
+# Network configuration
+%include mk-network.ks
