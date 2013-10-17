@@ -110,8 +110,6 @@ generic-logos
 
 # Try to minimize the image a bit
 %post
-rm -rf /var/cache/yum/*
-
 # 100MB of locale archive is kind unnecessary; we only do en_US.utf8
 # this will clear out everything we don't need; 100MB => 2.1MB.
 echo " * minimizing locale-archive binary / memory size"
@@ -126,6 +124,9 @@ yum -y erase binutils
 # When you're sure everything is done:
 #rpm -e gnupg2 gpgme pygpgme yum rpm-build-libs rpm-python
 #rm -rf /var/lib/rpm
+
+echo " * cleaning up yum cache, etc"
+yum clean all
 %end
 
 # Network configuration
