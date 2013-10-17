@@ -1,8 +1,9 @@
 # Kickstart file to build a small Fedora image
 # This is based on the work at http://www.thincrust.net
+# Also based on https://git.fedorahosted.org/cgit/cloud-kickstarts.git/tree/container/container-small-19.ks
 lang en_US.UTF-8
 keyboard us
-timezone US/Eastern
+timezone --utc Etc/UTC
 auth --useshadow --enablemd5
 selinux --permissive
 bootloader --timeout=1 --append="acpi=force"
