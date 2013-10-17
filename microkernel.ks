@@ -73,24 +73,34 @@ facter
 #
 # Packages to Remove
 #
-
 -prelink
 -setserial
 -ed
+-tar
 
 # Remove the authconfig pieces
 -authconfig
 -wireless-tools
+-passwd
 
 # Remove the kbd bits
 -kbd
 -usermode
 
+# file system stuff
 -kpartx
 -dmraid
 -mdadm
 -lvm2
--tar
+-e2fsprogs
+-e2fsprogs-libs
+
+# grub
+-freetype
+-grub2
+-grub2-tools
+-grubby
+-os-prober
 
 # selinux toolchain of policycoreutils, libsemanage, ustr
 -policycoreutils
