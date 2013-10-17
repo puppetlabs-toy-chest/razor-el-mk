@@ -140,5 +140,10 @@ echo " * removing /boot, since that lives on the ISO side"
 rm -rf /boot/*
 %end
 
+%post --nochroot
+echo " * disquieting the microkernel boot process"
+sed -i -e's/ rhgb//g' -e's/ quiet//g' $LIVE_ROOT/isolinux/isolinux.cfg
+%end
+
 # Network configuration
 %include mk-network.ks
