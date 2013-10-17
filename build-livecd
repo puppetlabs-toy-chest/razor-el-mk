@@ -23,13 +23,14 @@ cp $TOP_DIR/pkg/razor-mk-agent-${VERSION}.gem \$INSTALL_ROOT/var/tmp
 
 %post
 gem install -l --no-ri --no-rdoc /var/tmp/razor-mk-agent-${VERSION}.gem
+rm -f /var/tmp/razor-mk-agent-${VERSION}.gem
 
 cat > /etc/systemd/system/mk.service <<EOUNIT
-$(< etc/mk.service)
+$(cat etc/mk.service)
 EOUNIT
 
 cat > /etc/systemd/system/mk.timer <<EOUNIT
-$(< etc/mk.timer)
+$(cat etc/mk.timer)
 EOUNIT
 
 mkdir /var/lib/mk
@@ -37,7 +38,7 @@ systemctl enable mk.timer
 
 mkdir /usr/lib/razor
 
-# enable the `reboot` command from the Razor server
+# enable the reboot command from the Razor server
 ln -sf /sbin/reboot /usr/lib/razor/reboot
 %end
 EOF

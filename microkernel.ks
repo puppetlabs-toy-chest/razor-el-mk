@@ -1,8 +1,9 @@
 # Kickstart file to build a small Fedora image
 # This is based on the work at http://www.thincrust.net
+# Also based on https://git.fedorahosted.org/cgit/cloud-kickstarts.git/tree/container/container-small-19.ks
 lang en_US.UTF-8
 keyboard us
-timezone US/Eastern
+timezone --utc Etc/UTC
 auth --useshadow --enablemd5
 selinux --permissive
 bootloader --timeout=1 --append="acpi=force"
@@ -25,11 +26,8 @@ part / --size 1024 --fstype ext4 --ondisk sda
 #
 # Repositories
 #
-#repo --name=rawhide --mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=rawhide&arch=$basearch
-# These repos work on my Fedora 18 machine (i.e., $releasever=18, $basearch=x86_64)
-# For other variants, they may have to be adjusted moderately
-repo --name=fedora --mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=fedora-$releasever&arch=$basearch
-repo --name=updates --mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=updates-released-f$releasever&arch=$basearch
+repo --name=fedora --mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=fedora-19&arch=$basearch
+repo --name=updates --mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=updates-released-f19&arch=$basearch
 
 #
 # Add all the packages after the base packages
@@ -72,24 +70,34 @@ facter
 #
 # Packages to Remove
 #
-
 -prelink
 -setserial
 -ed
+-tar
 
 # Remove the authconfig pieces
 -authconfig
 -wireless-tools
+-passwd
 
 # Remove the kbd bits
 -kbd
 -usermode
 
+# file system stuff
 -kpartx
 -dmraid
 -mdadm
 -lvm2
--tar
+-e2fsprogs
+-e2fsprogs-libs
+
+# grub
+-freetype
+-grub2
+-grub2-tools
+-grubby
+-os-prober
 
 # selinux toolchain of policycoreutils, libsemanage, ustr
 -policycoreutils
@@ -109,15 +117,56 @@ generic-logos
 
 # Try to minimize the image a bit
 %post
-rm -rf /var/cache/yum/*
-mkdir /tmp/loc
-mv /usr/share/locale/en* /tmp/loc
+# ensure we don't have the same random seed on every image, which
+# could be bad for security at a later point...
+echo " * purge existing random seed to avoid identical seeds everywhere"
+rm -f /var/lib/random-seed
+
+# I can't tell if this should force a new SSH key, or force a fixed one,
+# but for now we can ensure that we generate new keys when SSHD is finally
+# fined up on the nodes...
+#
+# We also disable SSHd automatic startup in the final image.
+echo " * disable sshd and purge existing SSH host keys"
+rm -f /etc/ssh/ssh_host_*key{,.pub}
+systemctl disable sshd.service
+
+echo " * compressing cracklib dictionary"
+gzip -9 /usr/share/cracklib/pw_dict.pwd
+
+# 100MB of locale archive is kind unnecessary; we only do en_US.utf8
+# this will clear out everything we don't need; 100MB => 2.1MB.
+echo " * minimizing locale-archive binary / memory size"
+localedef --list-archive | grep -iv 'en_US' | xargs localedef -v --delete-from-archive
+mv /usr/lib/locale/locale-archive /usr/lib/locale/locale-archive.tmpl
+/usr/sbin/build-locale-archive
+
+# remove things only needed during the build process
+echo " * purging packages needed only during build"
+yum -C -y --setopt="clean_requirements_on_remove=1" erase \
+    binutils syslinux mtools acl ebtables \
+    firewalld dbus-glib libselinux-python gobject-introspection python-decorator \
+    dracut xz hardlink kpartx \
+    passwd
+
+echo " * purging all other locale data"
 rm -rf /usr/share/locale/*
-mv /tmp/loc/* /usr/share/locale
-yum -y erase binutils
-# When you're sure everything is done:
-#rpm -e gnupg2 gpgme pygpgme yum rpm-build-libs rpm-python
-#rm -rf /var/lib/rpm
+
+echo " * cleaning up yum cache, etc"
+yum clean all
+
+echo " * truncating various logfiles"
+for log in yum.log dracut.log lastlog yum.log; do
+    truncate -c -s 0 /var/log/${log}
+done
+
+echo " * removing /boot, since that lives on the ISO side"
+rm -rf /boot/*
+%end
+
+%post --nochroot
+echo " * disquieting the microkernel boot process"
+sed -i -e's/ rhgb//g' -e's/ quiet//g' $LIVE_ROOT/isolinux/isolinux.cfg
 %end
 
 # Network configuration
