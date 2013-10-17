@@ -26,11 +26,8 @@ part / --size 1024 --fstype ext4 --ondisk sda
 #
 # Repositories
 #
-#repo --name=rawhide --mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=rawhide&arch=$basearch
-# These repos work on my Fedora 18 machine (i.e., $releasever=18, $basearch=x86_64)
-# For other variants, they may have to be adjusted moderately
-repo --name=fedora --mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=fedora-$releasever&arch=$basearch
-repo --name=updates --mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=updates-released-f$releasever&arch=$basearch
+repo --name=fedora --mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=fedora-19&arch=$basearch
+repo --name=updates --mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=updates-released-f19&arch=$basearch
 
 #
 # Add all the packages after the base packages
