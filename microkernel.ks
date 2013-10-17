@@ -115,6 +115,15 @@ generic-logos
 echo " * purge existing random seed to avoid identical seeds everywhere"
 rm -f /var/lib/random-seed
 
+# I can't tell if this should force a new SSH key, or force a fixed one,
+# but for now we can ensure that we generate new keys when SSHD is finally
+# fined up on the nodes...
+#
+# We also disable SSHd automatic startup in the final image.
+echo " * disable sshd and purge existing SSH host keys"
+rm -f /etc/ssh/ssh_host_*key{,.pub}
+systemctl disable sshd.service
+
 # 100MB of locale archive is kind unnecessary; we only do en_US.utf8
 # this will clear out everything we don't need; 100MB => 2.1MB.
 echo " * minimizing locale-archive binary / memory size"
