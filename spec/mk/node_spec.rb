@@ -5,6 +5,9 @@ describe MK::Node do
   subject(:node) { MK::Node.instance }
 
   context "hw_id" do
+    # every test in this block will run with a fresh, fake filesystem
+    include FakeFS::SpecHelpers
+
     # @todo danielp 2013-07-25: the semantics of this situation are unclear to
     # me, but I think that "fail and assume that either the MK reboots, or a
     # network interface eventually shows up when we are restarted" are
@@ -23,19 +26,6 @@ describe MK::Node do
       }.to raise_error RuntimeError, /no network interfaces detected/
     end
 
-    it "should return the mac of the 'first' Ethernet-ish network interface" do
-      # @todo danielp 2013-07-25: Facter defines no particular order for
-      # network interfaces, and the results are coincidentally based on what
-      # `ifconfig` reports, and on the order of values from a hash.  Should we
-      # have a stricter definition, such as 'asciibetical' or something?
-      stub_interfaces(
-        'lo0'   => nil,
-        'wlan0' => 'c8:bc:c8:d8:4f:04',
-        'eth0'  => 'c8:bc:c8:96:67:51')
-
-      node.hw_id.should == 'c8bcc8966751'
-    end
-
     it "should concatenate multiple Ethernet-ish MACs" do
       stub_interfaces(
         'lo0'   => nil,
@@ -43,19 +33,16 @@ describe MK::Node do
         'eth0'  => 'c8:bc:c8:96:67:51',
         'eth1'  => '00:0c:29:82:5e:22')
 
-      node.hw_id.should == 'c8bcc8966751_000c29825e22'
+      node.hw_id.should == 'c8bcc8966751_000c29825e22_c8bcc8d84f04'
     end
 
-    it "should concatenate multiple Ethernet-ish MACs in the order Facter returns them" do
-      # This depends on Ruby 1.9 Hash semantics, "you get out what you put
-      # in", to function.
+    it "should concatenate multiple Ethernet-ish MACs in sorted-by-name order" do
       stub_interfaces(
         'lo0'   => nil,
-        'wlan0' => 'c8:bc:c8:d8:4f:04',
         'eth1'  => 'c8:bc:c8:96:67:51',
         'eth0'  => '00:0c:29:82:5e:22')
 
-      node.hw_id.should == 'c8bcc8966751_000c29825e22'
+      node.hw_id.should == '000c29825e22_c8bcc8966751'
     end
 
     it "should ignore inaccessible MACs on Ethernet-ish interfaces" do
@@ -69,15 +56,12 @@ describe MK::Node do
         'eth1'  => nil,
         'eth0'  => '00:0c:29:82:5e:22')
 
-      node.hw_id.should == '000c29825e22'
+      node.hw_id.should == '000c29825e22_c8bcc8d84f04'
     end
   end
 
   context "facts" do
     let :facts do Facter.to_hash end
-
-    # Ensure consistent hardware ID is available.
-    before :each do stub_interfaces('eth0' => '00:0c:29:82:5e:22') end
 
     it "should return facts as a hash" do
       node.facts.should be_an_instance_of Hash

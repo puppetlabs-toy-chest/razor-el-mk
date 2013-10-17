@@ -3,6 +3,7 @@ GEM
   specs:
     diff-lcs (1.2.4)
     facter (1.7.2)
+    fakefs (0.4.3)
     fuubar (1.1.1)
       rspec (~> 2.0)
       rspec-instafail (~> 0.2.0)
@@ -28,6 +29,7 @@ PLATFORMS
 
 DEPENDENCIES
   facter
+  fakefs
   fuubar
   rspec (~> 2.13.0)
   rspec-core (~> 2.13.0)

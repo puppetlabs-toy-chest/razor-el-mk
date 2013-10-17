@@ -6,6 +6,8 @@ require 'facter/util/ip'        # not automatically loaded in all cases
 require 'singleton'
 require 'forwardable'
 
+require 'pathname'
+
 class MK::Node
   include Singleton
   extend  Forwardable
@@ -14,35 +16,45 @@ class MK::Node
   # MAC address of all "Ethernet-ish" network cards as enumerated by
   # the kernel.
   #
-  # Ethernet-ish is defined as "named starting with 'eth'", to match the
+  # Ethernet-ish was originally defined -- in the first cut of Razor, and
+  # early rewrite microkernels -- as "named starting with 'eth'", to match the
   # Linux kernel default naming of your NICs; no relationship to actually
   # being an Ethernet interface, or even an important network interface, is
   # intended or implied.
+  #
+  # That expanded to accept the "em..." names in Fedora 18, and now is
+  # rewritten to just avoid Facter entirely -- because we know our
+  # environment, and don't actually *need* the portability that it gave us.
+  #
+  # That portability also came at the cost of using hacks to filter to
+  # Ethernet type, which we can now do (fairly) cleanly by checking the sysfs
+  # attribute directly in our code.
+  #
+  # Overall this should result in a higher quality, more reliable detection of
+  # network interfaces with zero user maintenance, and most importantly, zero
+  # need to have a mutable regexp to work out what is or isn't "good" on
+  # this machine in terms of hardware ID extraction.
   def hw_id
-    ifaces = Facter::Util::IP.get_interfaces.select do |iface|
-      # @todo danielp 2013-07-25: Razor would previously limit this to only
-      # Ethernet interfaces, which seems (a) limited, and (b) likely to fail
-      # in Fedora 20 and beyond, when they rename the interfaces based
-      # on topology.  IMO, we should have a more sensible policy than this.
-      #
-      # @todo lutter 2013-08-18: add 'emNNN' to the list of interfaces as a
-      # stopgap since that's what Fedora 18 uses. Most likely, we will need
-      # to make this regexp configurable to allow people to adapt it to
-      # various kernel's naming conventions
-      iface =~ /^(eth|em)\d+$/
+    # Observe that we sort the pathnames before turning them into MAC
+    # addresses, because that gives us a stable ordering when run multiple
+    # times on the same machine.
+    hw_id = Pathname.glob('/sys/class/net/*').select do |sysfs|
+      # This should skip everything except Ethernet style interfaces, which is
+      # maybe the right thing to do?  Different rule to what we use in DHCP
+      # though, so maybe we should just skip if name == 'lo'?
+      File.read(sysfs + 'type').chomp == '1'
+    end.sort.map do |sysfs|
+      address = File.read(sysfs + 'address').chomp
+      # this ensures that we strip out empty address fields next
+      address.empty? ? nil : address
+    end.compact.join('_').gsub(':', '').downcase
+
+    # Make sure we actually got *some* hardware ID.
+    if hw_id.nil? or hw_id.empty?
+      raise "no network interfaces detected; cannot generate a hardware ID"
     end
 
-    # Since we might have eliminated the only interfaces present on this
-    # machine, this needs to apply *after* the filtering is done.
-    ifaces.empty? and
-      raise "no network interfaces detected; cannot generate a hardware ID"
-
-    # @todo danielp 2013-07-25: Razor did nothing to normalize case in the
-    # hardware identifier, depending on either the server doing that, or
-    # simple chance to ensure that they matched.  We currently follow...
-    ifaces.map do |iface|
-      Facter::Util::IP.get_interface_value(iface, 'macaddress')
-    end.compact.join('_').gsub(':', '')
+    hw_id
   end
 
   # Fetch the facts for the current node.

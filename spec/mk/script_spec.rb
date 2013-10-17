@@ -58,8 +58,14 @@ describe "register" do
   end
 
   it "should register with the server" do
+    # We have to force facter to load facts before we fake the filesystem;
+    # sorry this is so ugly.
+    Facter.to_hash
+
+    FakeFS.activate!
     stub_interfaces('eth0' => '00:00:00:00:00:00')
     MK::Script.register
+    FakeFS.deactivate!
 
     last_registration['Content-Type'].should == 'application/json'
 
