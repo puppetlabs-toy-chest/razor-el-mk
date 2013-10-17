@@ -117,13 +117,16 @@ localedef --list-archive | grep -iv 'en_US' | xargs localedef -v --delete-from-a
 mv /usr/lib/locale/locale-archive /usr/lib/locale/locale-archive.tmpl
 /usr/sbin/build-locale-archive
 
+# remove things only needed during the build process
+echo " * purging packages needed only during build"
+yum -C -y --setopt="clean_requirements_on_remove=1" erase \
+    binutils syslinux mtools acl ebtables \
+    firewalld dbus-glib libselinux-python gobject-introspection python-decorator \
+    dracut xz hardlink kpartx \
+    passwd
+
 echo " * purging all other locale data"
 rm -rf /usr/share/locale/*
-
-yum -y erase binutils
-# When you're sure everything is done:
-#rpm -e gnupg2 gpgme pygpgme yum rpm-build-libs rpm-python
-#rm -rf /var/lib/rpm
 
 echo " * cleaning up yum cache, etc"
 yum clean all
