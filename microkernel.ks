@@ -124,6 +124,9 @@ echo " * disable sshd and purge existing SSH host keys"
 rm -f /etc/ssh/ssh_host_*key{,.pub}
 systemctl disable sshd.service
 
+echo " * compressing cracklib dictionary"
+gzip -9 /usr/share/cracklib/pw_dict.pwd
+
 # 100MB of locale archive is kind unnecessary; we only do en_US.utf8
 # this will clear out everything we don't need; 100MB => 2.1MB.
 echo " * minimizing locale-archive binary / memory size"
