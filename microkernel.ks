@@ -111,10 +111,10 @@ generic-logos
 # Try to minimize the image a bit
 %post
 rm -rf /var/cache/yum/*
-mkdir /tmp/loc
-mv /usr/share/locale/en* /tmp/loc
+
+echo " * purging all other locale data"
 rm -rf /usr/share/locale/*
-mv /tmp/loc/* /usr/share/locale
+
 yum -y erase binutils
 # When you're sure everything is done:
 #rpm -e gnupg2 gpgme pygpgme yum rpm-build-libs rpm-python
