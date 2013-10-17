@@ -130,6 +130,11 @@ rm -rf /usr/share/locale/*
 
 echo " * cleaning up yum cache, etc"
 yum clean all
+
+echo " * truncating various logfiles"
+for log in yum.log dracut.log lastlog yum.log; do
+    truncate -c -s 0 /var/log/${log}
+done
 %end
 
 # Network configuration
