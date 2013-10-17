@@ -135,6 +135,9 @@ echo " * truncating various logfiles"
 for log in yum.log dracut.log lastlog yum.log; do
     truncate -c -s 0 /var/log/${log}
 done
+
+echo " * removing /boot, since that lives on the ISO side"
+rm -rf /boot/*
 %end
 
 # Network configuration
