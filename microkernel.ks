@@ -110,6 +110,11 @@ generic-logos
 
 # Try to minimize the image a bit
 %post
+# ensure we don't have the same random seed on every image, which
+# could be bad for security at a later point...
+echo " * purge existing random seed to avoid identical seeds everywhere"
+rm -f /var/lib/random-seed
+
 # 100MB of locale archive is kind unnecessary; we only do en_US.utf8
 # this will clear out everything we don't need; 100MB => 2.1MB.
 echo " * minimizing locale-archive binary / memory size"
