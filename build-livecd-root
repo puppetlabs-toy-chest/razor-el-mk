@@ -1,0 +1,68 @@
+#! /bin/bash
+
+# the portion of building a livecd that needs to be run as root
+# run this after running build-livecd
+
+function cleanup() {
+    [ -d $tmpdir ] && rm -rf $tmpdir
+}
+
+if [ $(id -u) != 0 ]; then
+  echo "Please run this script as root"
+  exit 1
+fi
+
+trap cleanup EXIT
+
+resultdir=$PWD
+srcdir=$(realpath $(dirname $0))
+tmpdir=$(mktemp -d /var/tmp/build-livecd-XXXXXX)
+
+cd $srcdir
+last_tag=$(git describe)
+
+cd $tmpdir
+echo Working in directory $tmpdir
+
+echo "* Running livecd-creator"
+livecd-creator -v --cache /var/cache/microkernel --config $srcdir/microkernel.ks -f microkernel
+
+echo "* Converting to initrd"
+livecd-iso-to-pxeboot $tmpdir/microkernel.iso
+
+echo "* Building tarball"
+mkdir microkernel
+mv tftpboot/initrd0.img tftpboot/vmlinuz0 microkernel
+cd microkernel
+cat > README <<EOF
+This is a Microkernel for the new Razor
+(https://github.com/puppetlabs/razor-server)
+
+The microkernel was built from https://github.com/puppetlabs/razor-el-mk
+at commit $last_tag
+
+For instructions on how to set things up, read
+https://github.com/puppetlabs/razor-server/wiki/Installation
+
+To verify the kernel and initrd in this tar, run
+
+  sha256sum -c SHA256SUM
+
+The SHA256SUM file is signed with my public key (FC6E8A22). You can verify it
+by running
+
+  gpg --verify SHA256SUM.sig
+EOF
+
+sha256sum initrd0.img vmlinuz0 > SHA256SUM
+# We want to do this as a normal user, not as root
+# echo "  * Sign SHA256SUM"
+# gpg --output SHA256SUM --detach-sig SHA256SUM
+
+cd ..
+tarball=$srcdir/pkg/microkernel-${last_tag#release-}.tar
+tar cf $tarball microkernel/
+chown --reference $srcdir/build-livecd $tarball
+
+echo "* Done"
+echo "The microkernel is in $tarball"
