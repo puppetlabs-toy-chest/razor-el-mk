@@ -28,6 +28,8 @@ part / --size 1024 --fstype ext4 --ondisk sda
 #
 repo --name=fedora --mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=fedora-19&arch=$basearch
 repo --name=updates --mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=updates-released-f19&arch=$basearch
+repo --name=puppetlabs-products --baseurl=http://yum.puppetlabs.com/fedora/f19/products/$basearch
+repo --name=puppetlabs-deps --baseurl=http://yum.puppetlabs.com/fedora/f19/dependencies/$basearch
 
 #
 # Add all the packages after the base packages
