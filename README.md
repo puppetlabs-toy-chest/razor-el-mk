@@ -7,14 +7,17 @@ To build an image, run the following on a Fedora 18 machine:
 
     > rake build
     > ./build-livecd
-    > sudo livecd-creator --verbose --config microkernel.ks
+    > sudo ./build-livecd-root
 
-This will produce an ~ 150MB ISO file. You can extract kernel and initrd
-with
+This will produce an ~ 130MB tar file `microkernel.tar`. To deploy this on
+an existing Razor server, extract it in the server's `repo_store_root` that
+you set in `config.yaml`:
 
-    > sudo livecd-iso-to-pxeboot ./livecd-microkernel-*.iso
+    > tar xf microkernel.tar -C $repo_store_root
 
-For more information on these tools, see the [Fedora Live CD page](https://fedoraproject.org/wiki/How_to_create_and_use_a_Live_CD?rd=How_to_create_and_use_Fedora_Live_CD)
+For more information on the tools that do the heavy lifting of building the
+image, see the
+[Fedora Live CD page](https://fedoraproject.org/wiki/How_to_create_and_use_a_Live_CD?rd=How_to_create_and_use_Fedora_Live_CD)
 
 ## Todo
 

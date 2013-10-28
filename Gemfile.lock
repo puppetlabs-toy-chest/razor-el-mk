@@ -29,7 +29,7 @@ PLATFORMS
 
 DEPENDENCIES
   facter
-  fakefs
+  fakefs (~> 0.4.3)
   fuubar
   rspec (~> 2.13.0)
   rspec-core (~> 2.13.0)
