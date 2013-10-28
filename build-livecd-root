@@ -55,9 +55,6 @@ by running
 EOF
 
 sha256sum initrd0.img vmlinuz0 > SHA256SUM
-# We want to do this as a normal user, not as root
-# echo "  * Sign SHA256SUM"
-# gpg --output SHA256SUM --detach-sig SHA256SUM
 
 cd ..
 tarball=$srcdir/pkg/microkernel-${last_tag#release-}.tar

@@ -1,0 +1,25 @@
+#! /bin/bash
+
+# Utility script for me: take a tarball built by build-livecd-root and
+# add a detached gpg signature. Not elegant, but gets the job done.
+
+function cleanup() {
+    [ -d $tmpdir ] && rm -rf $tmpdir
+}
+
+if [ $# -lt 1 ]; then
+  echo "Usage: sign-tarball TARBALL"
+  exit 1
+fi
+
+trap cleanup EXIT
+
+tarball=$(realpath $1)
+tmpdir=$(mktemp -d /var/tmp/sign-tarball-XXXXXX)
+
+cd $tmpdir
+tar xf $tarball
+cd microkernel
+gpg --output SHA256SUM.sig --detach-sig SHA256SUM
+cd ..
+tar uf $tarball microkernel/SHA256SUM.sig
