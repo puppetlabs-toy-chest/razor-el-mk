@@ -10,7 +10,6 @@ StandardOutput=syslog
 StandardError=inherit
 SyslogIdentifier=microkernel
 ExecStart=/usr/local/bin/mk register
-Restart=always
 
 [Install]
 WantedBy=multi-user.target
