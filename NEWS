@@ -1,0 +1,16 @@
+002 - 2013-10-28
+  * Pull in latest Facter from Puppetlabs repos, rather than the one from
+    Fedora. That immediately pulls in a number of useful facts, like
+    blockdevice_* or memorysize_mb
+  * Always build based on Fedora 19, regardless of the Fedora version
+    running on the build machine
+  * Greatly reduce the image size by pruning lots of unneeded packages and
+    data files; reduces size from ~ 200 MB to ~ 150 MB
+  * Disable SSH daemon by default; to reenable, log into the console and
+    run 'systemctl start sshd.service'
+  * DHCP all the things: the microkernel will try and bring up every
+    physical interface via DHCP
+
+001 - 2013-08-28
+  * Initial release of the Fedora-based Microkernel
+  * Completely rewritten MK agent
