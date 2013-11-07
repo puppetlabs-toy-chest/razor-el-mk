@@ -68,6 +68,7 @@ binutils
 # We need a ruby env and all of facter's dependencies fulfilled
 rubygems
 facter
+net-tools
 
 #
 # Packages to Remove
