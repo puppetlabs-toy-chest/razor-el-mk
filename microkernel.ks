@@ -7,9 +7,6 @@ timezone --utc Etc/UTC
 auth --useshadow --enablemd5
 selinux --permissive
 bootloader --timeout=1 --append="acpi=force"
-# we don't want network auto-configured -- udev does that on boot!
-# network --bootproto=dhcp --device=eth0 --onboot=on
-services --enabled=network
 
 # Uncomment the next line
 # to make the root password be thincrust
@@ -46,8 +43,6 @@ rootfiles
 yum
 vim-minimal
 acpid
-##needed to disable selinux
-##lokkit
 
 # Only needed because livecd-tools runs /usr/bin/firewall-offline-cmd
 # unconditionally; patch submitted upstream. Remove once released version
@@ -58,9 +53,25 @@ firewalld
 openssh-clients
 openssh-server
 
-#Allow for dhcp access
-dhclient
-iputils
+# In order to have network connections managed effectively, we use
+# NetworkManager.  This is ~ 5.9MB of space in the image, but it also means
+# that we are (A) using the recommended and default upstream configuration,
+# and (B) no longer responsible for doing all the network management
+# ourselves.  This is, overall, a big win for everyone.
+#
+# Also, this opens the door to allowing for more complex configurations such
+# as 802.1x secured network links, VPN connectivity for communication with the
+# host, and so forth -- should we decide we need it.
+#
+# Ultimately, though, that as the upstream project write:
+#
+#    "Fedora now by default relies on NetworkManager for network
+#     configuration. This is the case also for minimal installations and server
+#     installations. We are trying to make NetworkManager as suitable for this
+#     task as possible."
+#
+# I hope that doesn't offend.  Dropping this in just works! --daniel 2013-11-07
+NetworkManager
 
 # Enable stripping
 binutils
@@ -148,7 +159,7 @@ mv /usr/lib/locale/locale-archive /usr/lib/locale/locale-archive.tmpl
 echo " * purging packages needed only during build"
 yum -C -y --setopt="clean_requirements_on_remove=1" erase \
     binutils syslinux mtools acl ebtables \
-    firewalld dbus-glib libselinux-python gobject-introspection python-decorator \
+    firewalld libselinux-python python-decorator \
     dracut xz hardlink kpartx \
     passwd
 
@@ -171,6 +182,3 @@ rm -rf /boot/*
 echo " * disquieting the microkernel boot process"
 sed -i -e's/ rhgb//g' -e's/ quiet//g' $LIVE_ROOT/isolinux/isolinux.cfg
 %end
-
-# Network configuration
-%include mk-network.ks
