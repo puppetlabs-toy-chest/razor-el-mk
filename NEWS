@@ -1,3 +1,7 @@
+003 - 2013-11-21
+  * Use NetworkManager for configuring/bringing up networking
+  * Add net-tools (ifconfig) so that facter reports on network devices
+
 002 - 2013-10-28
   * Pull in latest Facter from Puppetlabs repos, rather than the one from
     Fedora. That immediately pulls in a number of useful facts, like
