@@ -19,11 +19,11 @@ For more information on the tools that do the heavy lifting of building the
 image, see the
 [Fedora Live CD page](https://fedoraproject.org/wiki/How_to_create_and_use_a_Live_CD?rd=How_to_create_and_use_Fedora_Live_CD)
 
-## Todo
+## Getting in touch
 
-* Port microkernel.ks to CentOS/RHEL (mostly a matter of changing repos)
-* Have fun trying to minimize the image
-
+* bug/issue tracker: [RAZOR project in JIRA](https://tickets.puppetlabs.com/browse/RAZOR)
+* on IRC: `#puppet-razor` on [freenode](http://freenode.net/)
+* mailing list: [puppet-razor@googlegroups.com](http://groups.google.com/group/puppet-razor)
 
 ## Razor Microkernel Client
 
