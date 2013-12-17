@@ -1,9 +1,11 @@
 # El Microkernel
 
 This repository has the files/tools for building a Razor Microkernel based
-on RHEL/CentOS/Fedora.
+on RHEL/CentOS/Fedora. The resulting discovery image is used by the
+[Razor server](https://github.com/puppetlabs/razor-server) to take
+inventory of new machines.
 
-To build an image, run the following on a Fedora 18 machine:
+To build an image, run the following on a Fedora machine:
 
     > rake build
     > ./build-livecd
