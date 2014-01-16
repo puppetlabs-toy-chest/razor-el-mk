@@ -36,6 +36,10 @@ module MK::Script
     # Dispatch the command we received, unless there is none...
     execute(result['action']) unless result['action'] == 'none'
 
+    if result['id']
+      MK.config.set('id', result['id'])
+    end
+
     # ...and we are good.
     return true
   end

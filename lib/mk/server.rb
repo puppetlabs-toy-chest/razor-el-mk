@@ -12,7 +12,12 @@ class MK::Server
   # Submit a registration request to the server.  This will raise an exception
   # if the request fails.
   def send_register(body, headers)
-    url = URI(MK.config['register'])
+    url = MK.config['register']
+    if MK.config['id']
+      url = url + "/#{MK.config['id']}"
+    end
+    url = URI(url)
+
     raise "HTTPS is not yet supported in #{url}" if url.scheme =~ /\Ahttps\Z/i
     raise "bad URL scheme for #{url}" unless url.scheme =~ /\Ahttp\Z/i
 
