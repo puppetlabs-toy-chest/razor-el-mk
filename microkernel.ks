@@ -145,6 +145,17 @@ echo " * disable sshd and purge existing SSH host keys"
 rm -f /etc/ssh/ssh_host_*key{,.pub}
 systemctl disable sshd.service
 
+# This seems to cause 'reboot' resulting in a shutdown on certain platforms
+# See https://tickets.puppetlabs.com/browse/RAZOR-100
+echo " * disable the mei_me module"
+mkdir -p /etc/modprobe.d
+cat > /etc/modprobe.d/mei.conf <<EOMEI
+blacklist mei_me
+install mei_me /bin/true
+blacklist mei
+install mei /bin/true
+EOMEI
+
 echo " * compressing cracklib dictionary"
 gzip -9 /usr/share/cracklib/pw_dict.pwd
 
