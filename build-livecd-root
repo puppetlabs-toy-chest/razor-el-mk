@@ -2,9 +2,16 @@
 
 # the portion of building a livecd that needs to be run as root
 # run this after running build-livecd
+#
+# The temp dir in which things happen is by default deleted when this
+# script ends, unless an error happens or the KEEP_TMPDIR variable is set
 
 function cleanup() {
-    [ -d $tmpdir ] && rm -rf $tmpdir
+    if [ -n "$KEEP_TMPDIR" ]; then
+        echo "Not removing tmpdir $tmpdir"
+    else
+        [ -d $tmpdir ] && rm -rf $tmpdir
+    fi
 }
 
 if [ $(id -u) != 0 ]; then
@@ -25,14 +32,14 @@ cd $tmpdir
 echo Working in directory $tmpdir
 
 echo "* Running livecd-creator"
-livecd-creator -v --cache /var/cache/microkernel --config $srcdir/microkernel.ks -f microkernel
+livecd-creator -v --cache /var/cache/microkernel --config $srcdir/microkernel.ks -f microkernel || KEEP_TMPDIR=yes
 
 echo "* Converting to initrd"
-livecd-iso-to-pxeboot $tmpdir/microkernel.iso
+livecd-iso-to-pxeboot $tmpdir/microkernel.iso || KEEP_TMPDIR=yes
 
 echo "* Building tarball"
 mkdir microkernel
-mv tftpboot/initrd0.img tftpboot/vmlinuz0 microkernel
+mv tftpboot/initrd0.img tftpboot/vmlinuz0 microkernel || KEEP_TMPDIR=yes
 cd microkernel
 cat > README <<EOF
 This is a Microkernel for the new Razor
