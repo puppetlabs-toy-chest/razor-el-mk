@@ -5,11 +5,35 @@ on RHEL/CentOS/Fedora. The resulting discovery image is used by the
 [Razor server](https://github.com/puppetlabs/razor-server) to take
 inventory of new machines.
 
+# Resources
+
+ * [Fedora 19 NetInstall ISO](http://mirror.chpc.utah.edu/pub/fedora/linux/releases/19/Fedora/x86_64/iso/)
+
+# Getting Started
+
+This section describes how to build an image on a
+[Fedora](http://fedoraproject.org/) system.
+
+First, install the necessary system dependencies.  The system itself has been
+installed from the network infrastructure server role, with the compilers,
+rpmbuild tools, and system tools group selected.
+
+    yum -y install rake rubygem-bundler livecd-tools
+
+Disable SELinux when building the image:
+
+    setenforce 0
+
+Then, install project dependencies.  Installing into a local path will require
+the use of `bundle exec` when starting project executables.
+
+    bundle install --path .bundle/gems/
+
 To build an image, run the following on a Fedora machine:
 
-    > rake build
-    > ./build-livecd
-    > sudo ./build-livecd-root
+    bundle exec rake build
+    ./build-livecd
+    sudo ./build-livecd-root
 
 This will produce an ~ 130MB tar file `microkernel.tar`. To deploy this on
 an existing Razor server, extract it in the server's `repo_store_root` that
