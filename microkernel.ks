@@ -43,6 +43,10 @@ rootfiles
 yum
 vim-minimal
 acpid
+# RAZOR-145 Add dmidecode for facter support
+dmidecode
+# Additional dependency for facter support
+virt-what
 
 # Only needed because livecd-tools runs /usr/bin/firewall-offline-cmd
 # unconditionally; patch submitted upstream. Remove once released version
