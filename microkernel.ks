@@ -77,6 +77,9 @@ openssh-server
 # I hope that doesn't offend.  Dropping this in just works! --daniel 2013-11-07
 NetworkManager
 
+# Used to update code at runtime
+unzip
+
 # Enable stripping
 binutils
 
