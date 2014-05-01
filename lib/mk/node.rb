@@ -75,12 +75,13 @@ class MK::Node
   # * Ruby version
   # * Linux kernel version
   def user_agent
+    kernel = Facter[:kernel] ? Facter[:kernel].value : 'unknown'
+    kvers  = Facter[:kernelversion] ? Facter[:kernelversion].value : 'unknown'
     values = {
       'razor'  => MK::VERSION,
       'facter' => Facter.version, # sigh
       'ruby'   => RUBY_VERSION,
-      # @todo danielp 2013-07-30: I can't find a better way to do this...
-      'kernel'  => Facter.kernel + '-' + Facter.kernelversion
+      'kernel' => "#{kernel}-#{kvers}"
     }.reject{|k,v| v.nil?}.map{|k,v| k+'/'+v}.join(' ')
   end
 end
