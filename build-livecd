@@ -25,6 +25,11 @@ cp $TOP_DIR/pkg/razor-mk-agent-${VERSION}.gem \$INSTALL_ROOT/var/tmp
 gem install -l --no-ri --no-rdoc /var/tmp/razor-mk-agent-${VERSION}.gem
 rm -f /var/tmp/razor-mk-agent-${VERSION}.gem
 
+cat > /usr/local/bin/mk-update <<'CODE'
+$(cat bin/mk-update)
+CODE
+chmod +rx /usr/local/bin/mk-update
+
 cat > /etc/systemd/system/mk.service <<EOUNIT
 $(cat etc/mk.service)
 EOUNIT
