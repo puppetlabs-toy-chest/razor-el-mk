@@ -69,4 +69,10 @@ module MK::Script
     # ...all good, job done.
     return true
   end
+
+  def config(name)
+    value = MK.config[name]
+    puts value
+    !!value
+  end
 end

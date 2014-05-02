@@ -29,6 +29,10 @@ server has an action to be carried out, executes it locally.
 Execute a Razor command.  This is used to run commands returned by the Razor
 server, but could also be used to locally test custom commands.
 
+ * config <value>
+
+Print the <value> from the config system.
+
 EOT
   exit outcome
 end
