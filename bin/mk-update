@@ -1,0 +1,47 @@
+#!/bin/bash
+#
+# Perform an MK runtime extension, if applicable, and then execute the MK
+# client with the same arguments passed to this script.
+
+# Get the extension URL from our configuration parser.  This is not exposed to
+# the extended environment, so we can't override how this is discovered in
+# this code.  That is probably the biggest limitation of the update system at
+# this point in time, but requires moving config parsing logic into this
+# script to fix... which is complex, to say the least. ;)
+url="$(mk config extend)"
+
+# Configuration-ish constants
+livedir='/tmp/mk-update'
+varpath='/var/lib/mk-update'
+zip="${varpath}/mk-extension.zip"
+
+# Set up the runtime environment.
+mkdir -p "${varpath}"
+
+if test -n "${url}"; then
+    # Try and download an update from the server.
+    if [[ "$(curl "${url}" -z "${zip}" -o "${zip}" -sLw "%{http_code}")" == "200" ]]; then
+        # We got an update to the file.  Might have spat out errors about missing
+        # zip file for sourcing or whatever, but those don't matter.  What matters
+        # is we got a 200 on the download, so we need to bump to a new version of
+        # the file.
+        tmpdir="$(mktemp -d /tmp/mk-update-$$-XXXXXXXXXX)"
+        if unzip -o "${zip}" -d "${tmpdir}"; then
+            rm -rf "${livedir}"
+            mv "${tmpdir}" "${livedir}"
+        else
+            # @todo danielp 2014-05-02: log this back to the server
+            rm -rf "${tmpdir}"
+        fi
+    fi
+fi
+
+# If we have a live directory, add it to the various environment vars.
+if test -d "${livedir}"; then
+    export PATH="${livedir}/bin${PATH:+:${PATH}}"
+    export LD_LIBRARY_PATH="${livedir}/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
+    export RUBYLIB="${livedir}/lib/ruby${RUBYLIB:+:${RUBYLIB}}"
+fi
+
+# Finally, execute the MK client in our new post-update environment.
+exec mk "$@"

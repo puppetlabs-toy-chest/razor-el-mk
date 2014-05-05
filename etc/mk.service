@@ -9,7 +9,7 @@ StandardInput=null
 StandardOutput=syslog
 StandardError=inherit
 SyslogIdentifier=microkernel
-ExecStart=/usr/local/bin/mk register
+ExecStart=/usr/local/bin/mk-update register
 
 [Install]
 WantedBy=multi-user.target
