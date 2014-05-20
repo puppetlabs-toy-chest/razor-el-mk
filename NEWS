@@ -1,3 +1,13 @@
+005 - 2014-05-20
+  * support downloading an extension.zip for custom and external facts
+  * use Facter 2.0.1
+  * Fix dracut could not boot error by patching initrd (RAZOR-170)
+  * Add dmidecode and virt-what (RAZOR-145)
+
+004 - 2014-01-30
+  * build-livecd-root: better control when temp dir is cleaned
+  * microkernel.ks: blacklist mei and mei_me
+
 003 - 2013-11-21
   * Use NetworkManager for configuring/bringing up networking
   * Add net-tools (ifconfig) so that facter reports on network devices
