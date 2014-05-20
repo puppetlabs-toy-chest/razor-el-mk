@@ -63,8 +63,17 @@ class MK::Node
   # included a selection of hardware based facts.  In this implementation, we
   # simply return what Facter does -- and deploy additional facts of our own
   # as required to add more data.
-  def_delegator 'Facter', 'to_hash', 'facts'
-
+  def facts
+    if ENV['MK_EXTERNAL_FACTS']
+      begin
+        Facter::Util::Config.ext_fact_loader = Facter::Util::DirectoryLoader.loader_for(ENV['MK_EXTERNAL_FACTS'])
+      rescue Facter::Util::DirectoryLoader::NoSuchDirectoryError
+        # An error here should go back to the server; though how ?
+        # But carry on anyway
+      end
+    end
+    Facter::to_hash
+  end
 
   # Calculate the "user agent" string, which is a collection of versioning
   # information potentially useful to supply to the server.

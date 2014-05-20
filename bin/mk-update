@@ -41,6 +41,8 @@ if test -d "${livedir}"; then
     export PATH="${livedir}/bin${PATH:+:${PATH}}"
     export LD_LIBRARY_PATH="${livedir}/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
     export RUBYLIB="${livedir}/lib/ruby${RUBYLIB:+:${RUBYLIB}}"
+    MK_EXTERNAL_FACTS="${livedir}/facts.d"
+    test -d "$MK_EXTERNAL_FACTS" && export MK_EXTERNAL_FACTS
 fi
 
 # Finally, execute the MK client in our new post-update environment.
