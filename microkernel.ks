@@ -163,6 +163,10 @@ blacklist mei
 install mei /bin/true
 EOMEI
 
+echo " * removing trusted CA certificates"
+truncate -s0 /usr/share/pki/ca-trust-source/ca-bundle.trust.crt
+update-ca-trust
+
 echo " * compressing cracklib dictionary"
 gzip -9 /usr/share/cracklib/pw_dict.pwd
 
