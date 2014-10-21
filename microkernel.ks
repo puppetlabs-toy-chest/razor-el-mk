@@ -147,6 +147,9 @@ echo " * disable sshd and purge existing SSH host keys"
 rm -f /etc/ssh/ssh_host_*key{,.pub}
 systemctl disable sshd.service
 
+echo " * removing python precompiled *.pyc files"
+find /usr/lib64/python*/ -name *pyc -print0 | xargs -0 rm -f
+
 # This seems to cause 'reboot' resulting in a shutdown on certain platforms
 # See https://tickets.puppetlabs.com/browse/RAZOR-100
 echo " * disable the mei_me module"
