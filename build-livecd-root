@@ -45,7 +45,7 @@ echo "* Unpacking initrd0.img"
 gzip -d -c tftpboot/initrd0.img | (cd $tmpdir/initrd_root; cpio -id)
 # Apply the dracut patch
 echo "* Applying dracut initrd loop patch"
-(cd "$tmpdir"/initrd_root; patch -p0) <<-'DRACUTPATCH'
+(cd "$tmpdir"/initrd_root; patch -f -p0) <<-'DRACUTPATCH'
 --- lib/dracut/hooks/pre-udev/30-dmsquash-liveiso-genrules.sh.bak	2014-03-18 20:16:01.472869714 -0700
 +++ lib/dracut/hooks/pre-udev/30-dmsquash-liveiso-genrules.sh	2014-03-18 20:16:49.779746408 -0700
 @@ -4,5 +4,5 @@
