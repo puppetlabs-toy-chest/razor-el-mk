@@ -18,7 +18,8 @@ First, install the necessary system dependencies.  The system itself has been
 installed from the network infrastructure server role, with the compilers,
 rpmbuild tools, and system tools group selected.
 
-    yum -y install rake rubygem-bundler livecd-tools
+    yum -y install ruby livecd-tools
+    gem update --system && gem install rake bundler
 
 Disable SELinux when building the image:
 
