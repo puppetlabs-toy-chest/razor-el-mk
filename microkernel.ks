@@ -7,6 +7,7 @@ timezone --utc Etc/UTC
 auth --useshadow --enablemd5
 selinux --permissive
 bootloader --timeout=1 --append="acpi=force"
+services --enabled=NetworkManager
 
 # Uncomment the next line
 # to make the root password be thincrust
@@ -23,10 +24,10 @@ part / --size 1024 --fstype ext4 --ondisk sda
 #
 # Repositories
 #
-repo --name=fedora --mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=fedora-19&arch=$basearch
-repo --name=updates --mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=updates-released-f19&arch=$basearch
-repo --name=puppetlabs-products --baseurl=http://yum.puppetlabs.com/fedora/f19/products/$basearch
-repo --name=puppetlabs-deps --baseurl=http://yum.puppetlabs.com/fedora/f19/dependencies/$basearch
+repo --name=base --mirrorlist=http://mirrorlist.centos.org/?release=7&arch=$basearch&repo=os
+repo --name=updates --mirrorlist=http://mirrorlist.centos.org/?release=7&arch=$basearch&repo=updates
+repo --name=puppetlabs-products --baseurl=http://yum.puppetlabs.com/el/7/products/$basearch
+repo --name=puppetlabs-deps --baseurl=http://yum.puppetlabs.com/el/7/dependencies/$basearch
 
 #
 # Add all the packages after the base packages
@@ -98,7 +99,6 @@ net-tools
 
 # Remove the authconfig pieces
 -authconfig
--wireless-tools
 -passwd
 
 # Remove the kbd bits
@@ -126,11 +126,6 @@ net-tools
 -selinux-policy*
 -libselinux-python
 -libselinux
-
-# Things it would be nice to loose
--fedora-logos
-generic-logos
--fedora-release-notes
 %end
 
 # Install the microkernel agent
@@ -176,10 +171,8 @@ mv /usr/lib/locale/locale-archive /usr/lib/locale/locale-archive.tmpl
 # remove things only needed during the build process
 echo " * purging packages needed only during build"
 yum -C -y --setopt="clean_requirements_on_remove=1" erase \
-    binutils syslinux mtools acl ebtables \
-    firewalld libselinux-python python-decorator \
-    dracut xz hardlink kpartx \
-    passwd
+    syslinux mtools acl ebtables firewalld libselinux-python \
+    python-decorator dracut hardlink kpartx passwd
 
 echo " * purging all other locale data"
 rm -rf /usr/share/locale/*
