@@ -7,12 +7,12 @@ inventory of new machines.
 
 # Resources
 
- * [Fedora 19 NetInstall ISO](http://mirror.chpc.utah.edu/pub/fedora/linux/releases/19/Fedora/x86_64/iso/)
+ * [CentOS 7 ISO](http://isoredirect.centos.org/centos/7/isos/x86_64/)
 
 # Getting Started
 
 This section describes how to build an image on a
-[Fedora](http://fedoraproject.org/) system.
+[CentOS](http://centos.org/) system.
 
 First, install the necessary system dependencies.  The system itself has been
 installed from the network infrastructure server role, with the compilers,
@@ -29,7 +29,7 @@ the use of `bundle exec` when starting project executables.
 
     bundle install --path .bundle/gems/
 
-To build an image, run the following on a Fedora machine:
+To build an image, run the following on a CentOS machine:
 
     bundle exec rake build
     ./build-livecd

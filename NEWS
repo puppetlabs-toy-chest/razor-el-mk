@@ -1,3 +1,6 @@
+006 - 2015-02-03
+  * Update the base image to CentOS 7 (RAZOR-48)
+
 005 - 2014-05-20
   * support downloading an extension.zip for custom and external facts
   * use Facter 2.0.1
