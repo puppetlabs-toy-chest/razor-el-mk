@@ -44,6 +44,7 @@ rootfiles
 yum
 vim-minimal
 acpid
+tar
 # RAZOR-145 Add dmidecode for facter support
 dmidecode
 # Additional dependency for facter support
@@ -95,7 +96,6 @@ net-tools
 -prelink
 -setserial
 -ed
--tar
 
 # Remove the authconfig pieces
 -authconfig
