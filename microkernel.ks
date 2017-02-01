@@ -164,6 +164,13 @@ EOMEI
 echo " * compressing cracklib dictionary"
 gzip -9 /usr/share/cracklib/pw_dict.pwd
 
+echo " * setting up journald and tty1"
+rm -f /etc/systemd/system/getty.target.wants/getty@tty1.service
+echo "SystemMaxUse=15M" >> /etc/systemd/journald.conf
+echo "ForwardToSyslog=no" >> /etc/systemd/journald.conf
+echo "ForwardToConsole=yes" >> /etc/systemd/journald.conf
+echo "TTYPath=/dev/tty1" >> /etc/systemd/journald.conf
+
 # 100MB of locale archive is kind unnecessary; we only do en_US.utf8
 # this will clear out everything we don't need; 100MB => 2.1MB.
 echo " * minimizing locale-archive binary / memory size"
