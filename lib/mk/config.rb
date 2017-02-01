@@ -23,12 +23,33 @@ class MK::Config
   # Error handling and key sanitation is up to the caller.
   def [](key)
     key = key.to_s.downcase
-    get_from_environment(key) or
+    get_from_runtime(key) or
       get_from_kernel_command_line(key) or
       get_from_DHCP_option(key) or
       get_from_config_file(key) or
       get_from_default_config(key) or
       nil
+  end
+
+  def set(key, val)
+    if File.file?(RuntimeConfigurationFile)
+      if File.readable? RuntimeConfigurationFile
+        runtime = JSON.parse(File.read(RuntimeConfigurationFile), 
+          :create_additions => false) rescue {}
+      else
+        #If the file exists, but its not readable, somethings really wrong.
+        return nil
+      end
+    else
+      runtime = {}
+    end
+    
+    key = key.to_s.downcase
+    runtime[key] = val
+
+    fd = File.new(RuntimeConfigurationFile,'w')
+    fd.write(runtime.to_json)
+    fd.close
   end
 
   # Default configuration values
@@ -45,6 +66,13 @@ class MK::Config
   #
   #     {"server": "razor.example.com"}
   ConfigurationFile    = '/etc/razor-mk-client.conf'
+  
+  #Runtime File path.
+  #
+  # This file will preserve runtime configuration between runs.  ENV used
+  # to be good for this, however now that the script runs on a timer
+  # rather than a daemon, ENV is sanitised each run.
+  RuntimeConfigurationFile = '/tmp/razor-mk-runtime.conf'
 
 
   ########################################################################
@@ -57,10 +85,20 @@ class MK::Config
   #
   # This fetches a value of "razor.#{key}" case-insensitively from
   # the environment.
-  def get_from_environment(key)
-    key   = "razor.#{key}"
-    found = ENV.keys.find {|n| key.casecmp(n) == 0 }
-    found and ENV[found]
+  def get_from_runtime(key)
+    # This returns false if the file does not exist.
+    return nil unless File.readable? RuntimeConfigurationFile
+
+    # Parse, but don't use any magic to vivify richer objects than the basic
+    # JSON spec allows -- not date/time magic, or anything else, just Hash,
+    # String, Array, and primitive types.
+    #
+    # In the event of an error, treat the file as empty.
+    data = JSON.parse(File.read(RuntimeConfigurationFile), :create_additions => false) rescue {}
+    return nil unless data.is_a? Hash
+
+    found = data.keys.find {|n| key.casecmp(n) == 0 }
+    found and data[found]
   end
 
   # Fetch a Razor setting from the kernel command line.
