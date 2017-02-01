@@ -1,3 +1,14 @@
+008 - 2017-02-01
+  * Update the base image to CentOS 7.3.1611 (RAZOR-993)
+  * Add log rotation on journald
+  * Send log output to tty2
+  * Remove dracut code from build-livecd-root
+  * Remove Python PYC compiled code to decrease image size
+  * Explicitly require tar for new builds (RAZOR-855)
+
+007 - 2015-12-10
+  * Update the base image to CentOS 7.1.1503 (RAZOR-753)
+
 006 - 2015-02-03
   * Update the base image to CentOS 7 (RAZOR-48)
 

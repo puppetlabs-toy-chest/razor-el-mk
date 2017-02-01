@@ -46,6 +46,9 @@ For more information on the tools that do the heavy lifting of building the
 image, see the
 [Fedora Live CD page](https://fedoraproject.org/wiki/How_to_create_and_use_a_Live_CD?rd=How_to_create_and_use_Fedora_Live_CD)
 
+To log into the microkernel, use the root password `thincrust`. Also
+note that logging information will be sent to tty2.
+
 ## Getting in touch
 
 * bug/issue tracker: [RAZOR project in JIRA](https://tickets.puppetlabs.com/browse/RAZOR)
