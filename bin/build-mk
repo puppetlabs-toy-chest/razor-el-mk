@@ -1,0 +1,47 @@
+#!/bin/sh
+set -e
+set -x
+ruby=${1:-2.6.2}
+yum -y install livecd-tools git
+
+# install build dependencies
+sudo yum install -y git-core zlib zlib-devel gcc-c++ patch readline readline-devel libyaml-devel libffi-devel openssl-devel make bzip2 autoconf automake libtool bison curl sqlite-devel
+
+# clone and install rbenv environment
+cd ~
+[ -e ~/.rbenv ] || git clone git://github.com/sstephenson/rbenv.git ~/.rbenv
+[ -e ~/.rbenv/plugins/ruby-build ] || git clone git://github.com/sstephenson/ruby-build.git ~/.rbenv/plugins/ruby-build
+echo 'export PATH="$HOME/.rbenv/bin:$HOME/.rbenv/plugins/ruby-build/bin:$PATH"' >> ~/.bash_profile
+echo 'eval "$(~/.rbenv/bin/rbenv init -)"' >> ~/.bash_profile
+
+# re-init bash
+source ~/.bash_profile
+
+# install latest ruby
+~/.rbenv/bin/rbenv versions | grep -q $ruby || ~/.rbenv/bin/rbenv install -v $ruby
+
+# sets the default ruby version that the shell will use
+~/.rbenv/bin/rbenv global $ruby
+
+# to disable generating of documents as that would take so much time
+echo "gem: --no-document" > .gemrc
+
+# install bundler
+gem install bundler
+
+# must be executed everytime a gem has been installed in order for the ruby executable to run
+~/.rbenv/bin/rbenv rehash
+
+gem update --system && gem install rake bundler
+setenforce 0
+cd ~
+rm -rf razor-el-mk
+git clone https://github.com/puppetlabs/razor-el-mk
+cd razor-el-mk
+sed -i'' -e "s/ruby\ '.*'/ruby\ '$ruby'/" Gemfile
+bundle install --path .bundle/gems/
+bundle exec rake build
+./build-livecd
+sudo ./build-livecd-root
+# Move the microkernel to the home directory.
+mv ./pkg/microkernel* ~

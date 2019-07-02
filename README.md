@@ -14,6 +14,21 @@ inventory of new machines.
 This section describes how to build an image on a
 [CentOS](http://centos.org/) system.
 
+## Automated script
+
+A script for building the microkernel on a vanilla build of CentOS exists
+in the `bin/` directory, and is linked via [short link](http://pup.pt/build-razor-microkernel).
+Run the script in a vanilla CentOS build with the following command:
+
+`curl -L pup.pt/build-razor-microkernel | sudo bash`
+
+Optionally, if the ruby version has changed from the version specified in the
+Gemfile, this can be specified as a parameter in the script:
+
+`curl -L pup.pt/build-razor-microkernel | sudo bash -s 2.7.0`
+
+## Process explanation
+
 First, install the necessary system dependencies.  The system itself has been
 installed from the network infrastructure server role, with the compilers,
 rpmbuild tools, and system tools group selected.
