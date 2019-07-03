@@ -21,29 +21,29 @@ describe "bin/mk script" do
 
   it "should have a relevant message if the command is omitted" do
     output, status = capture2e(mk)
-    status.should be_exited
-    status.should_not be_success
-    output.should =~ /no command/i
+    expect( status ).to be_exited
+    expect( status ).to_not be_success
+    expect( output ).to match(/no command/i)
   end
 
   it "should have a relevant message if the command is unknown" do
     output, status = capture2e(mk, 'no such command is defined')
-    status.should be_exited
-    status.should_not be_success
-    output.should =~ /unknown command/i
+    expect( status ).to be_exited
+    expect( status ).to_not be_success
+    expect( output ).to match(/unknown command/i)
   end
 
   it "should exit zero if the command executed successfully" do
     env = {'razor.commands' => dir_of('true')}
-    output, status = capture2e(env, mk, 'execute', 'true')
-    status.should be_exited
-    status.should be_success
+    _, status = capture2e(env, mk, 'execute', 'true')
+    expect( status ).to be_exited
+    expect( status ).to be_success
   end
 
   it "should exit non-zero if the command executed but returned non-zero" do
     env = {'razor.commands' => dir_of('false')}
-    output, status = capture2e(env, mk, 'execute', 'false')
-    status.should be_exited
-    status.should_not be_success
+    _, status = capture2e(env, mk, 'execute', 'false')
+    expect( status ).to be_exited
+    expect( status ).to_not be_success
   end
 end

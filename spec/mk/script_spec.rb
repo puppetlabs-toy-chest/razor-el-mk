@@ -67,20 +67,20 @@ describe "register" do
     MK::Script.register
     FakeFS.deactivate!
 
-    last_registration['Content-Type'].should == 'application/json'
+    expect( last_registration['Content-Type'] ).to eq('application/json')
 
     data = JSON.parse(last_registration.body)
 
     # Sadly, RSpec still has limited support for fuzzy matching on hash values.
-    data.keys.should include('hw_id', 'facts')
-    data['hw_id'].should == '000000000000'
-    data['facts'].should be_an_instance_of Hash
+    expect( data.keys ).to include('hw_id', 'facts')
+    expect( data['hw_id'] ).to eq('000000000000')
+    expect( data['facts'] ).to be_an_instance_of Hash
 
     # Make sure we passed a sampling of facts through correctly; should be
     # testing `nil == nil` if the fact isn't defined on this platform, which
     # is a pass, and an acceptable default position to take.
     %w[architecture hostname path rubyversion sshdsakey virtual].each do |fact|
-      data['facts'][fact].should == Facter.send(fact)
+      expect( data['facts'][fact] ).to eq(Facter.value(fact.to_sym))
     end
   end
 end
@@ -100,7 +100,7 @@ describe "execute" do
   end
 
   it "should fail if `commands` is not in the configuration" do
-    MK.config.stub(:[]).and_return(nil)
+    allow(MK.config).to receive(:[]).and_return(nil)
     expect {
       MK::Script.execute('true')
     }.to raise_error RuntimeError, /not set in the configuration/
@@ -143,7 +143,7 @@ describe "execute" do
   it "should return true if the commands returns zero" do
     ENV['razor.commands'] = dir_of('true')
 
-    MK::Script.execute('true').should be_true
+    expect( MK::Script.execute('true') ).to be true
 
     ENV.delete('razor.commands')
   end

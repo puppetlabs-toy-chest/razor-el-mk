@@ -33,7 +33,7 @@ describe MK::Node do
         'eth0'  => 'c8:bc:c8:96:67:51',
         'eth1'  => '00:0c:29:82:5e:22')
 
-      node.hw_id.should == 'c8bcc8966751_000c29825e22_c8bcc8d84f04'
+      expect( node.hw_id ).to eq('c8bcc8966751_000c29825e22_c8bcc8d84f04')
     end
 
     it "should concatenate multiple Ethernet-ish MACs in sorted-by-name order" do
@@ -42,7 +42,7 @@ describe MK::Node do
         'eth1'  => 'c8:bc:c8:96:67:51',
         'eth0'  => '00:0c:29:82:5e:22')
 
-      node.hw_id.should == '000c29825e22_c8bcc8966751'
+      expect( node.hw_id ).to eq('000c29825e22_c8bcc8966751')
     end
 
     it "should ignore inaccessible MACs on Ethernet-ish interfaces" do
@@ -56,7 +56,7 @@ describe MK::Node do
         'eth1'  => nil,
         'eth0'  => '00:0c:29:82:5e:22')
 
-      node.hw_id.should == '000c29825e22_c8bcc8d84f04'
+      expect( node.hw_id ).to eq('000c29825e22_c8bcc8d84f04')
     end
   end
 
@@ -64,15 +64,15 @@ describe MK::Node do
     let :facts do Facter.to_hash end
 
     it "should return facts as a hash" do
-      node.facts.should be_an_instance_of Hash
+      expect( node.facts ).to be_an_instance_of Hash
     end
 
     it "should have only string keys" do
-      node.facts.keys.each {|key| key.should be_an_instance_of String }
+      node.facts.keys.each {|key| expect( key ).to be_an_instance_of String }
     end
 
     it "should return all the current nodes facts" do
-      node.facts.should include facts
+      expect( node.facts ).to include facts
     end
   end
 
@@ -85,12 +85,12 @@ describe MK::Node do
     ValidUserAgentHeader = %r{\A#{ValidProduct}(?: #{ValidProduct})*\Z}o
 
     it "should be a valid user agent header" do
-      ua.should =~ ValidUserAgentHeader
+      expect( ua ).to match(ValidUserAgentHeader)
     end
 
     %w[razor facter ruby kernel].each do |field|
       it "should include a valid #{field} version token" do
-        ua.should =~ /\b#{field}\/#{ValidToken}\b/i
+        expect( ua ).to match(/\b#{field}\/#{ValidToken}\b/i)
       end
     end
   end
