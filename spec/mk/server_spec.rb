@@ -81,21 +81,21 @@ describe MK::Server do
     end
 
     [
-      'ftp://example.com/registration',
-      'gttp://example.com/',
-      'http://example++',
-      '/svc/checkin'
-    ].each do |badness|
+      ['ftp://example.com/registration', RuntimeError],
+      ['gttp://example.com/', RuntimeError],
+      ['http://example++', MK::Server::ConnectionFailedError],
+      ['/svc/checkin', RuntimeError]
+    ].each do |badness, error_type|
       it "should raise if the register URL is `#{badness}`" do
         ENV['razor.register'] = badness
         expect {
           server.send_register(body, headers)
-        }.to raise_error
+        }.to raise_error(error_type)
       end
     end
 
     it "should raise if the response is a 4xx code" do
-      ENV['razor.register'] = "http://localhost:#{port}/404"
+      ENV['razor.register'] = "http://localhost:#{port}/erroring"
       expect {
         server.send_register(body, headers)
       }.to raise_error Net::HTTPServerException, /404/
@@ -124,7 +124,7 @@ describe MK::Server do
 
     it "should return the body, decoded as JSON, on success" do
       ENV['razor.register'] = "http://localhost:#{port}/good-body"
-      server.send_register(body, headers).should == GoodResponse
+      expect( server.send_register(body, headers) ).to eq(GoodResponse)
     end
   end
 end
