@@ -2,7 +2,7 @@ ruby '2.6.2'
 
 source 'https://rubygems.org'
 
-gem 'facter'
+gem "facter", ">= 1.7.6"
 gem 'rake'
 gem 'thor'
 
