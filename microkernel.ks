@@ -19,7 +19,7 @@ rootpw --iscrypted $1$uw6MV$m6VtUWPed4SqgoW6fKfTZ/
 # This information is used by appliance-tools but
 # not by the livecd tools.
 #
-part / --size 1024 --fstype ext4 --ondisk sda
+part / --size 4096 --fstype ext4 --ondisk sda
 
 #
 # Repositories
@@ -89,7 +89,9 @@ binutils
 rubygems
 facter
 net-tools
-
+dhcp-libs
+dhcp-common
+dhclient
 #
 # Packages to Remove
 #
