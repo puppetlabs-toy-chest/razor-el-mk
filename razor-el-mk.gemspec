@@ -23,6 +23,6 @@ Gem::Specification.new do |spec|
   # use the RPM packaged facter instead which is not a rubygem
   # spec.add_dependency "facter"
 
-  spec.add_development_dependency "bundler", "~> 1.3"
+  spec.add_development_dependency "bundler", "~> 2.2.10"
   spec.add_development_dependency "rake"
 end
